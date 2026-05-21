@@ -1,0 +1,10 @@
+Printify Test Document
+=======================
+This is a test document to verify local network printing through the Printify Hub web interface.
+Settings used:
+- Format: A4
+- Orientation: Portrait
+- Duplex: None
+- Colors: Grayscale
+=======================
+Thank you for using Printify!

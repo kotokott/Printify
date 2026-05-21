@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Printify Hub — Локальная Печать</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="glass-bg-container">
+    <div class="blob blob-purple"></div>
+    <div class="blob blob-cyan"></div>
+    <div class="blob blob-orange"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+            <rect x="6" y="14" width="12" height="8" rx="1" fill="currentColor" fill-opacity="0.1" />
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>Printify<span>Hub</span></h1>
+          <p>Сетевой пульт управления печатью</p>
+        </div>
+      </div>
+      <div class="system-status">
+        <span class="status-dot pulsing"></span>
+        <span class="status-label">Сервер активен</span>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="app-main">
+      <!-- Left Column: Source (Printers & Upload) -->
+      <section class="workspace-column left-column">
+        <!-- Printer Selection Card -->
+        <div class="glass-card printer-card">
+          <h2 class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            1. Выберите принтер
+          </h2>
+          <div class="input-group">
+            <div class="select-wrapper">
+              <select id="printer-select">
+                <option value="" disabled selected>Загрузка принтеров...</option>
+              </select>
+              <div class="select-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="printer-status-bar" id="printer-status-display">
+            <span class="printer-badge badge-loading">Опрос принтеров...</span>
+            <span class="printer-desc" id="printer-detail">Пожалуйста, подождите</span>
+          </div>
+        </div>
+
+        <!-- Upload File Card -->
+        <div class="glass-card upload-card">
+          <h2 class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            2. Загрузите документ
+          </h2>
+          <div class="upload-zone" id="drop-zone">
+            <input type="file" id="file-input" accept=".pdf,.png,.jpg,.jpeg,.txt" style="display: none;">
+            <div class="upload-zone-content">
+              <div class="upload-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="18" x2="12" y2="12"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <p class="upload-text-main">Перетащите файл сюда или <span>выберите на устройстве</span></p>
+              <p class="upload-text-sub">Поддерживаются PDF, изображения (JPG, PNG) и TXT файлы до 50MB</p>
+            </div>
+          </div>
+
+          <!-- File Info & Preview -->
+          <div class="file-preview-area" id="preview-area" style="display: none;">
+            <div class="file-meta">
+              <div class="file-icon-type" id="preview-file-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="file-details">
+                <h3 class="file-name" id="preview-filename">document.pdf</h3>
+                <span class="file-size" id="preview-filesize">2.4 MB</span>
+              </div>
+              <button class="btn-remove-file" id="btn-clear-file" title="Удалить файл">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+            
+            <div class="preview-visual" id="preview-visual-box">
+              <!-- Dynamically populated previews -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Settings & Printing -->
+      <section class="workspace-column right-column">
+        <div class="glass-card settings-card">
+          <h2 class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            3. Настройки печати
+          </h2>
+
+          <div class="settings-grid">
+            <!-- Copies Setting -->
+            <div class="setting-item copies-setting">
+              <label class="setting-label">Копии</label>
+              <div class="copies-counter">
+                <button type="button" class="btn-counter" id="btn-copies-minus" disabled>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+                <input type="number" id="input-copies" value="1" min="1" max="99" readonly>
+                <button type="button" class="btn-counter" id="btn-copies-plus">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Color Setting -->
+            <div class="setting-item colormode-setting">
+              <label class="setting-label">Цветность</label>
+              <div class="toggle-buttons-group">
+                <button type="button" class="toggle-btn active" data-value="color" id="btn-color-mode">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/></svg>
+                  Цветной
+                </button>
+                <button type="button" class="toggle-btn" data-value="gray" id="btn-gray-mode">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/></svg>
+                  Ч/Б
+                </button>
+              </div>
+            </div>
+
+            <!-- Orientation Setting -->
+            <div class="setting-item orientation-setting">
+              <label class="setting-label">Ориентация</label>
+              <div class="toggle-buttons-group">
+                <button type="button" class="toggle-btn active" data-value="3" id="btn-orient-portrait">
+                  Портретная
+                </button>
+                <button type="button" class="toggle-btn" data-value="4" id="btn-orient-landscape">
+                  Альбомная
+                </button>
+              </div>
+
+              <!-- Orientation Visualizer Card -->
+              <div class="orientation-visualizer">
+                <div class="visualizer-stage">
+                  <div class="mock-sheet portrait" id="mock-sheet-element">
+                    <div class="mock-lines">
+                      <div class="mock-line title"></div>
+                      <div class="mock-line"></div>
+                      <div class="mock-line"></div>
+                      <div class="mock-line short"></div>
+                    </div>
+                    <div class="mock-sheet-label" id="sheet-dimension-label">A4 (210×297 мм)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Paper Size Setting -->
+            <div class="setting-item">
+              <label class="setting-label" for="select-pagesize">Размер бумаги</label>
+              <div class="select-wrapper">
+                <select id="select-pagesize">
+                  <option value="A4" selected>A4</option>
+                  <option value="Letter">Letter</option>
+                  <option value="A3">A3</option>
+                  <option value="A5">A5</option>
+                  <option value="Legal">Legal</option>
+                </select>
+                <div class="select-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Duplex Setting -->
+            <div class="setting-item full-width-setting">
+              <label class="setting-label">Двусторонняя печать</label>
+              <div class="duplex-options-row">
+                <button type="button" class="duplex-option-btn active" data-value="None">
+                  <div class="duplex-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="4" y="2" width="16" height="20" rx="2" />
+                      <line x1="8" y1="6" x2="16" y2="6" /><line x1="8" y1="10" x2="16" y2="10" />
+                    </svg>
+                  </div>
+                  <div class="duplex-label-text">
+                    <h4>Односторонняя</h4>
+                    <p>Печать только на лицевой стороне</p>
+                  </div>
+                </button>
+
+                <button type="button" class="duplex-option-btn" data-value="DuplexNoTumble">
+                  <div class="duplex-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="4" y="2" width="16" height="20" rx="2" />
+                      <path d="M3 12h18M3 12a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4" stroke-dasharray="3,3" />
+                      <line x1="8" y1="6" x2="16" y2="6" />
+                    </svg>
+                  </div>
+                  <div class="duplex-label-text">
+                    <h4>Двусторонняя (книжная)</h4>
+                    <p>Переворот по длинному краю</p>
+                  </div>
+                </button>
+
+                <button type="button" class="duplex-option-btn" data-value="DuplexTumble">
+                  <div class="duplex-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="4" y="2" width="16" height="20" rx="2" />
+                      <path d="M12 2v20M12 2a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4" stroke-dasharray="3,3" />
+                      <line x1="8" y1="6" x2="16" y2="6" />
+                    </svg>
+                  </div>
+                  <div class="duplex-label-text">
+                    <h4>Двусторонняя (альбомная)</h4>
+                    <p>Переворот по короткому краю</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Page Range Setting -->
+            <div class="setting-item full-width-setting">
+              <label class="setting-label" for="input-pagerange">Диапазон страниц</label>
+              <div class="range-input-wrapper">
+                <input type="text" id="input-pagerange" placeholder="Все (например, 1-3, 5)" value="All">
+                <div class="range-info-tooltip">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  <span class="tooltip-text">Оставьте пустым или введите "All" для печати всех страниц. Либо укажите диапазон: 1-5, 8.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Print Action Block -->
+          <div class="print-action-block">
+            <button type="button" class="btn-print-submit" id="btn-submit-print" disabled>
+              <span class="btn-content">
+                <span class="btn-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="6 9 6 2 18 2 18 9" />
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                    <rect x="6" y="14" width="12" height="8" />
+                  </svg>
+                </span>
+                <span class="btn-text">Отправить на печать</span>
+              </span>
+              <span class="spinner-loader" style="display: none;"></span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Section: Print Queue Monitor -->
+    <footer class="app-footer">
+      <div class="glass-card queue-card">
+        <div class="queue-header">
+          <div class="queue-title-area">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M3 20h4M3 12h18M3 4h18"/></svg>
+              Мониторинг очереди печати
+            </h2>
+            <p class="queue-subtitle" id="queue-count-label">Активных заданий: 0</p>
+          </div>
+          <button class="btn-refresh" id="btn-refresh-queue" title="Обновить список">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Обновить
+          </button>
+        </div>
+
+        <div class="queue-table-container">
+          <table class="queue-table">
+            <thead>
+              <tr>
+                <th>ID Задания</th>
+                <th>Принтер</th>
+                <th>Документ</th>
+                <th>Размер</th>
+                <th>Параметры печати</th>
+                <th>Время отправки</th>
+                <th>Статус</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody id="queue-table-body">
+              <tr>
+                <td colspan="8" class="empty-table-state">
+                  <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  </div>
+                  <p>Очередь печати пуста. Отправьте файл, чтобы увидеть его здесь.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Notification Toast -->
+  <div class="toast" id="notification-toast">
+    <div class="toast-icon" id="toast-icon-box">
+      <!-- Icon -->
+    </div>
+    <div class="toast-message" id="toast-message-text">Успешно!</div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
