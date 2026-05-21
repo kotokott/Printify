@@ -244,6 +244,37 @@ app.post('/api/print', upload.single('file'), async (req, res) => {
   const originalName = req.file.originalname;
   const fileSizeStr = (req.file.size / 1024).toFixed(1) + ' KB';
 
+  let printPath = filePath;
+  let convertedPath = null;
+  const ext = path.extname(originalName).toLowerCase();
+
+  if (ext === '.docx' || ext === '.doc') {
+    const pdfName = path.basename(filePath, ext) + '.pdf';
+    const outPath = path.join(uploadDir, pdfName);
+    
+    console.log(`Converting Word file ${filePath} to PDF...`);
+    const convertCmd = `libreoffice --headless --convert-to pdf --outdir "${uploadDir}" "${filePath}"`;
+    const convertResult = await runCmd(convertCmd);
+    
+    if (convertResult.code === 0 && fs.existsSync(outPath)) {
+      console.log(`Word file successfully converted to PDF: ${outPath}`);
+      printPath = outPath;
+      convertedPath = outPath;
+    } else {
+      console.error(`Failed to convert Word file:`, convertResult.stderr || convertResult.error);
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      } catch (err) {
+        console.error('Error deleting uploaded Word file on failure:', err);
+      }
+      return res.status(500).json({ 
+        error: 'Не удалось конвертировать документ Word в PDF. Убедитесь, что на сервере установлен LibreOffice (выполните: sudo apt install libreoffice-nogui -y).' 
+      });
+    }
+  }
+
   // Build the lp command arguments
   const args = [`-d "${printer}"`, `-n ${copies}`];
 
@@ -295,23 +326,26 @@ app.post('/api/print', upload.single('file'), async (req, res) => {
     }
   }
 
-  const fullCommand = `lp ${args.join(' ')} "${filePath}"`;
+  const fullCommand = `lp ${args.join(' ')} "${printPath}"`;
   console.log(`Executing print command: ${fullCommand}`);
 
   try {
     const result = await runCmd(fullCommand);
     
-    // Clean up uploaded file from temp storage after sending to lp
+    // Clean up uploaded files from temp storage after sending to lp
     // (lp makes a copy or reads it into CUPS queue immediately)
     setTimeout(() => {
       try {
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
         }
+        if (convertedPath && fs.existsSync(convertedPath)) {
+          fs.unlinkSync(convertedPath);
+        }
       } catch (err) {
-        console.error('Error deleting temp upload file:', err);
+        console.error('Error deleting temp upload files:', err);
       }
-    }, 1000);
+    }, 2000);
 
     if (result.code !== 0) {
       console.error(`CUPS lp error:`, result.stderr);
@@ -347,9 +381,12 @@ app.post('/api/print', upload.single('file'), async (req, res) => {
     });
   } catch (error) {
     console.error('Print handler error:', error);
-    // Clean up file if still exists
+    // Clean up files if still exist
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
+    }
+    if (convertedPath && fs.existsSync(convertedPath)) {
+      fs.unlinkSync(convertedPath);
     }
     res.status(500).json({ error: 'Failed to process print job' });
   }

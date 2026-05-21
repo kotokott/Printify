@@ -314,6 +314,23 @@ document.addEventListener('DOMContentLoaded', () => {
         previewVisualBox.appendChild(img);
       };
       reader.readAsDataURL(file);
+    } else if (['doc', 'docx'].includes(ext)) {
+      previewFileIcon.classList.add('word');
+      previewFileIcon.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          <text x="6" y="17" fill="currentColor" font-size="4.5" font-weight="bold">WORD</text>
+        </svg>
+      `;
+      previewVisualBox.innerHTML = `
+        <div class="preview-pdf-mock" style="border-color: rgba(43, 87, 154, 0.4);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2b579a" stroke-width="1.5" style="width: 3.5rem; height: 3.5rem;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <path d="M16 13H8M16 17H8" stroke-width="2"/>
+          </svg>
+          <span style="font-size: 0.8rem; font-weight: 500; color: #2b579a; margin-top: 0.5rem;">Документ Word готов к печати</span>
+        </div>
+      `;
     } else if (ext === 'txt') {
       previewFileIcon.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
